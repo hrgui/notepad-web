@@ -1,11 +1,14 @@
 import { useState } from "react";
 import Editor from "@monaco-editor/react";
+import MenuBar from "./MenuBar";
+import "./App.css";
 
 const languageMap = {
   js: "javascript",
   jsx: "javascript",
   ts: "typescript",
   tsx: "typescript",
+  md: "markdown",
 };
 
 function getLanguageFromFile(file: File) {
@@ -49,16 +52,19 @@ function FileUpload() {
     setFileContents(newValue);
   }
 
+  const items = [
+    {
+      title: "File",
+      submenu: [
+        { title: "Open", action: handleFileOpen },
+        { title: "Save", action: handleFileSave },
+      ],
+    },
+  ];
+
   return (
     <form>
-      <button type="button" onClick={handleFileOpen}>
-        Open
-      </button>
-      {fileHandle && (
-        <button type="button" onClick={handleFileSave}>
-          Save
-        </button>
-      )}
+      <MenuBar menuItems={items} />
       <Editor height="90vh" language={language} value={fileContents} onChange={handleTextChange} />
     </form>
   );
