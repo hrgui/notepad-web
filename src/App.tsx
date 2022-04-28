@@ -16,7 +16,7 @@ function getLanguageFromFile(file: File) {
   return (languageMap as any)[fileExtension] || fileExtension;
 }
 
-async function writeFile(fileHandle, contents) {
+async function writeFile(fileHandle: FileSystemFileHandle, contents: string) {
   // Create a FileSystemWritableFileStream to write to.
   const writable = await fileHandle.createWritable();
 
@@ -30,23 +30,19 @@ async function writeFile(fileHandle, contents) {
 function FileUpload() {
   const [fileContents, setFileContents] = useState<string>();
   const [language, setLanguage] = useState<string>();
-  const [fileHandle, setFileHandle] = useState<FileSystemHandle>();
+  const [fileHandle, setFileHandle] = useState<FileSystemFileHandle>();
 
   async function handleFileOpen() {
-    try {
-      const [fileHandle] = await window.showOpenFilePicker();
-      setFileHandle(fileHandle);
-      const file = await fileHandle.getFile();
-      setLanguage(getLanguageFromFile(file));
-      const contents = await file.text();
-      setFileContents(contents);
-    } catch (e) {
-      console.error(e);
-    }
+    const [fileHandle] = await window.showOpenFilePicker();
+    setFileHandle(fileHandle);
+    const file = await fileHandle.getFile();
+    setLanguage(getLanguageFromFile(file));
+    const contents = await file.text();
+    setFileContents(contents);
   }
 
   async function handleFileSave() {
-    await writeFile(fileHandle, fileContents);
+    await writeFile(fileHandle!, fileContents!);
   }
 
   function handleTextChange(newValue: string | undefined) {
@@ -58,11 +54,11 @@ function FileUpload() {
       <button type="button" onClick={handleFileOpen}>
         Open
       </button>
-      {
+      {fileHandle && (
         <button type="button" onClick={handleFileSave}>
           Save
         </button>
-      }
+      )}
       <Editor height="90vh" language={language} value={fileContents} onChange={handleTextChange} />
     </form>
   );
