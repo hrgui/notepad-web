@@ -30,10 +30,15 @@ async function writeFile(fileHandle: FileSystemFileHandle, contents: string) {
   await writable.close();
 }
 
+async function getNewFileHandle() {
+  const handle = await window.showSaveFilePicker();
+  return handle;
+}
+
 function FileUpload() {
   const [fileContents, setFileContents] = useState<string>();
   const [language, setLanguage] = useState<string>();
-  const [fileHandle, setFileHandle] = useState<FileSystemFileHandle>();
+  const [fileHandle, setFileHandle] = useState<FileSystemFileHandle | null>();
 
   async function handleFileOpen() {
     const [fileHandle] = await window.showOpenFilePicker();
@@ -45,17 +50,34 @@ function FileUpload() {
   }
 
   async function handleFileSave() {
-    await writeFile(fileHandle!, fileContents!);
+    let _fileHandle = fileHandle;
+    if (!_fileHandle) {
+      _fileHandle = await getNewFileHandle();
+      setFileHandle(_fileHandle);
+    }
+
+    await writeFile(_fileHandle!, fileContents!);
   }
 
   function handleTextChange(newValue: string | undefined) {
     setFileContents(newValue);
   }
 
+  function reset() {
+    setFileContents("");
+    setLanguage("");
+    setFileHandle(null);
+  }
+
+  function handleNewFile() {
+    reset();
+  }
+
   const items = [
     {
       title: "File",
       submenu: [
+        { title: "New", action: handleNewFile },
         { title: "Open", action: handleFileOpen },
         { title: "Save", action: handleFileSave },
       ],
